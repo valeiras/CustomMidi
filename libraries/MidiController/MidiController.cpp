@@ -1,5 +1,5 @@
 
-#include "Controller.h"
+#include "MidiController.h"
 
 //****************************************************************************************
 Mux::Mux(byte outpin_, byte numPins_, bool analog_)
@@ -56,7 +56,7 @@ void Button::muxUpdate()
 {
   byte temp = _muxpin;
   temp = temp << 2;
-  // Port registers allow for lower-level and faster manipulation of the i/o pins of the microcontroller on an Arduino board. The chips used on the Arduino board (the ATmega8 and ATmega168) have three ports:
+  // Port registers allow for lower-level and faster manipulation of the i/o pins of the microMidiController on an Arduino board. The chips used on the Arduino board (the ATmega8 and ATmega168) have three ports:
   // B (digital pin 8 to 13)
   // C (analog input pins)
   // D (digital pins 0 to 7)

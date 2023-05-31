@@ -1,5 +1,5 @@
-#ifndef Controller_h
-#define Controller_h
+#ifndef MidiController_h
+#define MidiController_h
 
 #include <Arduino.h>
 
