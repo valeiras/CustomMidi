@@ -4,7 +4,7 @@
 #ifdef ATMEGA328
 
 #include <MIDI.h>
-#include "MidiInterface.h"
+#include "midi_interface.h"
 
 MIDI_CREATE_DEFAULT_INSTANCE();
 

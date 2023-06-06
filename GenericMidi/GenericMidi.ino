@@ -8,27 +8,45 @@
 #define ATMEGA328
 
 #ifdef ATMEGA328
-#include "MidiInterface328.h"
+#include "midi_interface328.h"
 #elif defined(ATMEGA32U4)
-#include "MidiInterface32U4.h"
+#include "midi_interface32U4.h"
 #endif
 
-MidiInterface *midiInterface;
+#include "midi_controller.h"
+
+const byte NB_BUTTONS = 0;
+const byte NB_POTS = 4;
+const byte NB_MUX_BUTTONS = 0;
+const byte NB_MUX_POTS = 0;
+
+const byte MIDI_CH = 1;
+
+MidiInterface *interface;
+MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS> *controller;
+
 
 void setup() {
 #ifdef ATMEGA328
-  midiInterface = new MidiInterface328();
+  interface = new MidiInterface328();
 #elif defined(ATMEGA32U4)
   Serial.begin(9600);
-  midiInterface = new MidiInterface32U4();
+  interface = new MidiInterface32U4();
 #endif
+  controller = new MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>(interface);
+  
+  byte pins[NB_POTS] = {A0, A1, A2, A3};
+  byte controlChanges[NB_POTS] = {20, 21, 22, 23};
+  byte channels[NB_POTS] = {MIDI_CH, MIDI_CH, MIDI_CH, MIDI_CH};
+
+  controller->setupPots(pins, controlChanges, channels);
 }
 
 void loop() {
-  midiInterface->sendNoteOn(1, 48, 127);  // Channel 1, middle C, normal velocity
-  midiInterface->flushMidi();
+  interface->sendNoteOn(1, 48, 127);  // Channel 1, middle C, normal velocity
+  interface->flushMidi();
   delay(500);
-  midiInterface->sendNoteOff(1, 48, 127);  // Channel 1, middle C, normal velocity
-  midiInterface->flushMidi();
+  interface->sendNoteOff(1, 48, 127);  // Channel 1, middle C, normal velocity
+  interface->flushMidi();
   delay(500);
 }

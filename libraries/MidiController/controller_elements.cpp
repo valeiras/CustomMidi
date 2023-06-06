@@ -1,25 +1,29 @@
-#include "ControllerElements.h"
+#include "controller_elements.h"
 
 //****************************************************************************************
-Mux::Mux(byte _outPin, byte _numPins, bool _isAnalog) {
-  outPin = _outPin;
-  numPins = _numPins;
-  isAnalog = _isAnalog;
+Mux::Mux(byte outPin, byte numPins, bool isAnalog) {
+  outPin_ = outPin;
+  numPins_ = numPins;
+  isAnalog_ = isAnalog;
 
-  if (!isAnalog) {
-    pinMode(outPin, INPUT_PULLUP);
+  if (!isAnalog_) {
+    pinMode(outPin_, INPUT_PULLUP);
   }
 
   pinMode(2, OUTPUT);
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
 
-  if (numPins > 8){
+  if (numPins_ > 8){
    pinMode(5, OUTPUT);
   }
 }
 
 //****************************************************************************************
+// Command can be: 
+//    · 0 for notes
+//    · 1 for CC
+//    · 2 for toggle
 // Button (Pin Number, Command, Note Number, Channel, Debounce Time)
 Button::Button(byte pin, byte command, byte value, byte channel, byte debounce) {
   pin_ = pin;
@@ -39,8 +43,8 @@ Button::Button(byte pin, byte command, byte value, byte channel, byte debounce) 
 }
 
 Button::Button(Mux mux, byte muxPin, byte command, byte value, byte channel, byte debounce) {
-  pin_ = mux.outPin;
-  numMuxPins_ = mux.numPins;
+  pin_ = mux.outPin_;
+  numMuxPins_ = mux.numPins_;
   muxPin_ = muxPin;
   value_ = value;
   command_ = command;
@@ -114,14 +118,13 @@ void Button::newValue(byte command, byte value, byte channel) {
 }
 
 //********************************************************************
-Pot::Pot(byte pin, byte command, byte control, byte channel) {
+Pot::Pot(byte pin, byte control, byte channel) {
   pin_ = pin;
   control_ = control;
   value_ = analogRead(pin_);
   value_ = value_ >> 3;
   oldValue_ = value_ << 3;
   value_ = value_ << 3;
-  Pcommand = command;
   Pcontrol = control;
   Pchannel = channel;
 }
@@ -137,17 +140,18 @@ void Pot::muxUpdate() {
   PORTD = PORTD | temp;
 }
 
-Pot::Pot(Mux mux, byte muxpin, byte command, byte control, byte channel) {
-  pin_ = mux.outPin;
-  numMuxPins_ = mux.numPins;
-  muxPin_ = muxpin;
+Pot::Pot(Mux mux, byte muxPin, byte control, byte channel) {
+  pin_ = mux.outPin_;
+  numMuxPins_ = mux.numPins_;
+  muxPin_ = muxPin;
   control_ = control;
   muxUpdate();
+  
   value_ = analogRead(pin_);
   value_ = value_ >> 3;
   oldValue_ = value_ << 3;
   value_ = value_ << 3;
-  Pcommand = command;
+
   Pcontrol = control;
   Pchannel = channel;
 }
@@ -164,8 +168,7 @@ byte Pot::getValue() {
   return 255;
 }
 
-void Pot::newValue(byte command, byte value, byte channel) {
-  Pcommand = command;
+void Pot::newValue(byte value, byte channel) {
   Pcontrol = value;
   Pchannel = channel;
 }

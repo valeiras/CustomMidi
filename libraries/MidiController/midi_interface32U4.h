@@ -7,7 +7,7 @@
 #ifdef ATMEGA32U4
 
 #include "MIDIUSB.h"
-#include "MidiInterface.h"
+#include "midi_interface.h"
 
 
 class MidiInterface32U4 : public MidiInterface {

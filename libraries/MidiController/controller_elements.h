@@ -6,11 +6,11 @@
 class Mux
 {
   public:
-    Mux(byte _outpin, byte _numPins, bool _isAnalog);
+    Mux(byte outpin, byte numPins, bool isAnalog);
 
-    byte outPin;
-    byte numPins;
-    bool isAnalog;
+    byte outPin_;
+    byte numPins_;
+    bool isAnalog_;
 };
 
 //************************************************************************
@@ -49,14 +49,13 @@ class Button
 class Pot
 {
   public:
-    Pot(byte pin, byte command, byte control, byte channel);
-    Pot(Mux mux, byte muxpin ,byte command, byte control, byte channel);
+    Pot(byte pin, byte control, byte channel);
+    Pot(Mux mux, byte muxpin, byte control, byte channel);
     
     void muxUpdate();
-    void newValue(byte command, byte value, byte channel);
+    void newValue(byte value, byte channel);
     byte getValue();
-    
-    byte Pcommand;
+
     byte Pcontrol;
     byte Pchannel;
 
