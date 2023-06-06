@@ -9,7 +9,7 @@
 /*************************************************************
   MIDI CONTROLLER
 
-  Modified from the controller by Notes and Volts
+  Derived from the great controller by the great Notes and Volts
   www.notesandvolts.com
 
 //************************************************************/
@@ -19,15 +19,20 @@ class MidiController {
  public:
   MidiController(MidiInterface *interface);
 
-  void setupButton(byte buttonIdx, byte pin, byte command, byte value, byte channel, byte debounce);
+  void setupButton(byte buttonIdx, byte pin, Commands command, byte pitch, byte channel, byte debounce);
   void setupPot(byte potIdx, byte pin, byte control, byte channel);
-  void setupMuxButton(byte buttonIdx, Mux *mux, byte muxPin, byte command, byte value, byte channel, byte debounce);
+  void setupMuxButton(byte buttonIdx, Mux *mux, byte muxPin, Commands command, byte pitch, byte channel, byte debounce);
   void setupMuxPot(byte potIdx, Mux *mux, byte muxPin, byte control, byte channel);
 
-  void setupButtons(byte pins[NB_BUTTONS], byte commands[NB_BUTTONS], byte values[NB_BUTTONS], byte channels[NB_BUTTONS], byte debounces[NB_BUTTONS]);
+  void setupButtons(byte pins[NB_BUTTONS], Commands commands[NB_BUTTONS], byte pitches[NB_BUTTONS], byte channels[NB_BUTTONS], byte debounces[NB_BUTTONS]);
   void setupPots(byte pins[NB_POTS], byte controls[NB_POTS], byte channels[NB_POTS]);
-  void setupMuxButtons(Mux *mux[NB_BUTTONS], byte muxPins[NB_BUTTONS], byte commands[NB_BUTTONS], byte values[NB_BUTTONS], byte channels[NB_BUTTONS], byte debounces[NB_BUTTONS]);
+  void setupMuxButtons(Mux *mux[NB_BUTTONS], byte muxPins[NB_BUTTONS], Commands commands[NB_BUTTONS], byte pitches[NB_BUTTONS], byte channels[NB_BUTTONS], byte debounces[NB_BUTTONS]);
   void setupMuxPots(Mux *mux[NB_POTS], byte muxPins[NB_POTS], byte controls[NB_POTS], byte channels[NB_POTS]);
+
+  void updateButtons();
+  void updateMuxButtons();
+  void updatePots();
+  void updateMuxPots();
 
  private:
   Pot *pots_[NB_POTS];
@@ -44,9 +49,9 @@ MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::MidiController
 }
 
 template <byte NB_BUTTONS, byte NB_POTS, byte NB_MUX_BUTTONS, byte NB_MUX_POTS>
-void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::setupButton(byte buttonIdx, byte pin, byte command, byte value, byte channel, byte debounce) {
+void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::setupButton(byte buttonIdx, byte pin, Commands command, byte pitch, byte channel, byte debounce) {
   if (buttonIdx < NB_BUTTONS) {
-    buttons_[buttonIdx] = new Button(pin, command, value, channel, debounce);
+    buttons_[buttonIdx] = new Button(pin, command, pitch, channel, debounce);
   }
 }
 
@@ -58,9 +63,9 @@ void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::setupPot(
 }
 
 template <byte NB_BUTTONS, byte NB_POTS, byte NB_MUX_BUTTONS, byte NB_MUX_POTS>
-void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::setupMuxButton(byte buttonIdx, Mux *mux, byte muxPin, byte command, byte value, byte channel, byte debounce) {
+void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::setupMuxButton(byte buttonIdx, Mux *mux, byte muxPin, Commands command, byte pitch, byte channel, byte debounce) {
   if (buttonIdx < NB_BUTTONS) {
-    buttons_[buttonIdx] = new Button(*mux, muxPin, command, value, channel, debounce);
+    buttons_[buttonIdx] = new Button(*mux, muxPin, command, pitch, channel, debounce);
   }
 }
 
@@ -72,9 +77,9 @@ void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::setupMuxP
 }
 
 template <byte NB_BUTTONS, byte NB_POTS, byte NB_MUX_BUTTONS, byte NB_MUX_POTS>
-void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::setupButtons(byte pins[NB_BUTTONS], byte commands[NB_BUTTONS], byte values[NB_BUTTONS], byte channels[NB_BUTTONS], byte debounces[NB_BUTTONS]) {
+void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::setupButtons(byte pins[NB_BUTTONS], Commands commands[NB_BUTTONS], byte pitches[NB_BUTTONS], byte channels[NB_BUTTONS], byte debounces[NB_BUTTONS]) {
   for (unsigned int ii = 0; ii < NB_BUTTONS; ii++) {
-    buttons_[ii] = new Button(pins[ii], commands[ii], values[ii], channels[ii], debounces[ii]);
+    buttons_[ii] = new Button(pins[ii], commands[ii], pitches[ii], channels[ii], debounces[ii]);
   }
 }
 
@@ -86,9 +91,9 @@ void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::setupPots
 }
 
 template <byte NB_BUTTONS, byte NB_POTS, byte NB_MUX_BUTTONS, byte NB_MUX_POTS>
-void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::setupMuxButtons(Mux *mux[NB_BUTTONS], byte muxPins[NB_BUTTONS], byte commands[NB_BUTTONS], byte values[NB_BUTTONS], byte channels[NB_BUTTONS], byte debounces[NB_BUTTONS]) {
+void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::setupMuxButtons(Mux *mux[NB_BUTTONS], byte muxPins[NB_BUTTONS], Commands commands[NB_BUTTONS], byte pitches[NB_BUTTONS], byte channels[NB_BUTTONS], byte debounces[NB_BUTTONS]) {
   for (unsigned int ii = 0; ii < NB_BUTTONS; ii++) {
-    buttons_[ii] = new Button(*(mux[ii]), muxPins[ii], commands[ii], values[ii], channels[ii], debounces[ii]);
+    buttons_[ii] = new Button(*(mux[ii]), muxPins[ii], commands[ii], pitches[ii], channels[ii], debounces[ii]);
   }
 }
 
@@ -97,6 +102,75 @@ void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::setupMuxP
   for (unsigned int ii = 0; ii < NB_POTS; ii++) {
     pots_[ii] = new Pot(*(mux[ii]), muxPins[ii], controls[ii], channels[ii]);
   }
+}
+
+template <byte NB_BUTTONS, byte NB_POTS, byte NB_MUX_BUTTONS, byte NB_MUX_POTS>
+void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::updateButtons() {
+  // Cycle through Button array
+  for (unsigned int ii = 0; ii < NB_BUTTONS; ii++) {
+    byte message = buttons_[ii]->getValue();
+
+    // Serial.println("Updating buttons");
+    //  Serial.print("Updating button ");
+    //  Serial.print(ii);
+    //  Serial.print(" with message ");
+    //  Serial.println(message);
+
+    //  Button is pressed
+    if (message == 0) {
+      switch (buttons_[ii]->_command) {
+        case Commands::NOTE:
+          interface_->sendNoteOn(buttons_[ii]->_channel, buttons_[ii]->_pitch, 127);
+          break;
+        case Commands::CC:
+          interface_->sendCCMessage(buttons_[ii]->_channel, buttons_[ii]->_pitch, 127);
+          break;
+        case Commands::TOGGLE:
+          if (buttons_[ii]->_toggle == 0) {
+            interface_->sendCCMessage(buttons_[ii]->_channel, buttons_[ii]->_pitch, 127);
+            buttons_[ii]->_toggle = 1;
+          } else if (buttons_[ii]->_toggle == 1) {
+            interface_->sendCCMessage(buttons_[ii]->_channel, buttons_[ii]->_pitch, 0);
+            buttons_[ii]->_toggle = 0;
+          }
+          break;
+      }
+    }
+
+    //  Button is not pressed
+    if (message == 1) {
+      switch (buttons_[ii]->_command) {
+        case Commands::NOTE:
+          interface_->sendNoteOff(buttons_[ii]->_channel, buttons_[ii]->_pitch, 127);
+          break;
+        case Commands::CC:
+          interface_->sendCCMessage(buttons_[ii]->_channel, buttons_[ii]->_pitch, 0);
+          break;
+      }
+    }
+  }
+  interface_->flushMidi();
+}
+
+template <byte NB_BUTTONS, byte NB_POTS, byte NB_MUX_BUTTONS, byte NB_MUX_POTS>
+void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::updateMuxButtons() {
+  interface_->flushMidi();
+}
+
+template <byte NB_BUTTONS, byte NB_POTS, byte NB_MUX_BUTTONS, byte NB_MUX_POTS>
+void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::updatePots() {
+  for (unsigned int ii = 0; ii < NB_POTS; ii++) {
+    byte potmessage = pots_[ii]->getValue();
+    if (potmessage != 255) {
+      interface_->sendCCMessage(pots_[ii]->_channel, pots_[ii]->_control, potmessage);
+    }
+  }
+  interface_->flushMidi();
+}
+
+template <byte NB_BUTTONS, byte NB_POTS, byte NB_MUX_BUTTONS, byte NB_MUX_POTS>
+void MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>::updateMuxPots() {
+  interface_->flushMidi();
 }
 
 #endif

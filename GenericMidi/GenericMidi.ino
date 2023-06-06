@@ -5,7 +5,7 @@
 // "TEENSY" if using a Teensy board
 // "DEBUG" if you just want to debug the code in the serial monitor
 
-#define ATMEGA328
+#define ATMEGA32U4
 
 #ifdef ATMEGA328
 #include "midi_interface328.h"
@@ -15,12 +15,13 @@
 
 #include "midi_controller.h"
 
-const byte NB_BUTTONS = 0;
+const byte NB_BUTTONS = 4;
 const byte NB_POTS = 4;
 const byte NB_MUX_BUTTONS = 0;
 const byte NB_MUX_POTS = 0;
 
 const byte MIDI_CH = 1;
+const byte DEBOUNCE_TIME = 10;
 
 MidiInterface *interface;
 MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS> *controller;
@@ -35,18 +36,20 @@ void setup() {
 #endif
   controller = new MidiController<NB_BUTTONS, NB_POTS, NB_MUX_BUTTONS, NB_MUX_POTS>(interface);
   
-  byte pins[NB_POTS] = {A0, A1, A2, A3};
+  byte potPins[NB_POTS] = {A0, A1, A2, A3};
   byte controlChanges[NB_POTS] = {20, 21, 22, 23};
   byte channels[NB_POTS] = {MIDI_CH, MIDI_CH, MIDI_CH, MIDI_CH};
 
-  controller->setupPots(pins, controlChanges, channels);
+  byte buttonPins[NB_BUTTONS] = {2, 3, 4, 5};
+  Commands commands[NB_BUTTONS] = {Commands::NOTE, Commands::NOTE, Commands::CC, Commands::TOGGLE};
+  byte pitches[NB_BUTTONS] = {64, 65, 24, 25};
+  byte debounces[NB_BUTTONS] = {DEBOUNCE_TIME, DEBOUNCE_TIME, DEBOUNCE_TIME, DEBOUNCE_TIME};
+
+  controller->setupPots(potPins, controlChanges, channels);
+  controller->setupButtons(buttonPins, commands, pitches, channels, debounces);
 }
 
 void loop() {
-  interface->sendNoteOn(1, 48, 127);  // Channel 1, middle C, normal velocity
-  interface->flushMidi();
-  delay(500);
-  interface->sendNoteOff(1, 48, 127);  // Channel 1, middle C, normal velocity
-  interface->flushMidi();
-  delay(500);
+  controller->updatePots();
+  controller->updateButtons();
 }

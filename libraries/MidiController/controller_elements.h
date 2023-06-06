@@ -3,14 +3,20 @@
 
 #include <Arduino.h>
 
+enum class Commands {
+  NOTE,
+  CC,
+  TOGGLE
+};
+
 class Mux
 {
   public:
     Mux(byte outpin, byte numPins, bool isAnalog);
 
-    byte outPin_;
-    byte numPins_;
-    bool isAnalog_;
+    byte _outPin;
+    byte _numPins;
+    bool _isAnalog;
 };
 
 //************************************************************************
@@ -18,17 +24,16 @@ class Mux
 class Button
 {
   public:
-    Button(byte pin, byte command, byte value, byte channel, byte debounce);
-    Button(Mux mux, byte muxpin, byte command, byte value, byte channel, byte debounce);
+    Button(byte pin, Commands command, byte value, byte channel, byte debounce);
+    Button(Mux mux, byte muxPin, Commands command, byte pitch, byte channel, byte debounce);
 
     byte getValue();
     void muxUpdate();
-    void newValue(byte command, byte value, byte channel);
     
-    byte Bcommand;
-    byte Bvalue;
-    byte Bchannel;
-    byte Btoggle;
+    Commands _command;
+    byte _pitch;
+    byte _channel;
+    byte _toggle;
 
   private:
     byte previous_;
@@ -38,8 +43,6 @@ class Button
     byte pin_;
     byte muxPin_;
     byte numMuxPins_;
-    byte value_;
-    byte command_;
     bool isBusy_;
     byte status_;
     byte last_;
@@ -50,20 +53,18 @@ class Pot
 {
   public:
     Pot(byte pin, byte control, byte channel);
-    Pot(Mux mux, byte muxpin, byte control, byte channel);
+    Pot(Mux mux, byte muxPin, byte control, byte channel);
     
     void muxUpdate();
-    void newValue(byte value, byte channel);
     byte getValue();
 
-    byte Pcontrol;
-    byte Pchannel;
+    byte _control;
+    byte _channel;
 
   private:
     byte pin_;
     byte muxPin_;
     byte numMuxPins_;
-    byte control_;
     int value_;
     int oldValue_;
     bool hasChanged;
