@@ -5,29 +5,30 @@
 // "TEENSY" if using a Teensy board
 // "DEBUG" if you just want to debug the code in the serial monitor
 
-#define ATMEGA32U4
+#define ATMEGA328
 
-/////////////////////////////////////////////
-// LIBRARIES
-// -- Defines the MIDI library -- //
-
-// if using with ATmega328 - Uno, Mega, Nano...
 #ifdef ATMEGA328
-#include <MIDI.h> // by Francois Best
-MIDI_CREATE_DEFAULT_INSTANCE();
-
-// if using with ATmega32U4 - Micro, Pro Micro, Leonardo...
-#elif ATMEGA32U4
-#include "MIDIUSB.h"
-
+#include "MidiInterface328.h"
+#elif defined(ATMEGA32U4)
+#include "MidiInterface32U4.h"
 #endif
 
-void setup() {
-  // put your setup code here, to run once:
+MidiInterface *midiInterface;
 
+void setup() {
+#ifdef ATMEGA328
+  midiInterface = new MidiInterface328();
+#elif defined(ATMEGA32U4)
+  Serial.begin(9600);
+  midiInterface = new MidiInterface32U4();
+#endif
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  midiInterface->sendNoteOn(1, 48, 127);  // Channel 1, middle C, normal velocity
+  midiInterface->flushMidi();
+  delay(500);
+  midiInterface->sendNoteOff(1, 48, 127);  // Channel 1, middle C, normal velocity
+  midiInterface->flushMidi();
+  delay(500);
 }
