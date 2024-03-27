@@ -1,6 +1,22 @@
 # CustomMidi
 Custom Midi with Arduino
 
-ModuMidi is based on the Arudino MIDI controller by Notes and Volts, and is designed to work with Arduino Uno
+Custom Miid controller based on the Arudino MIDI controller by Notes and Volts. Designed to work with Arduino Uno and and Arduino Pro Micro.
 
-MicroMidi is designed to be used with and Arduino Pro Micro.
+# Installation
+
+## MIDI library
+Install the [MIDI](https://github.com/FortySevenEffects/arduino_midi_library/releases/tag/5.0.2) library.
+
+## Custom libraries
+Move the the content inside "libraries" to the Arduino's libraries folder.
+
+## HC-SR04 library:
+For the ultrasonic sensors, install the [HC-SR04](https://github.com/d03n3rfr1tz3/HC-SR04) library.
+
+## MPU-9250
+For the gyroscope and accelerometer, install the [MPU-9250](https://github.com/bolderflight/invensense-imu) library.
+
+# Usage
+
+
