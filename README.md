@@ -1,6 +1,6 @@
 # CustomMidi
 Custom Midi with Arduino
 
-ModuMidi is based on the Arudino MIDI controller by Notes and Volts, and is designed to work with Arduino Uno
+Custom Miid controller based on the Arudino MIDI controller by Notes and Volts. Designed to work with Arduino Uno and and Arduino Pro Micro.
 
-MicroMidi is designed to be used with and Arduino Pro Micro.
+# Installation
