@@ -14,6 +14,9 @@ Move the the content inside "libraries" to the Arduino's libraries folder.
 ## HC-SR04 library:
 For the ultrasonic sensors, install the [HC-SR04](https://github.com/d03n3rfr1tz3/HC-SR04) library.
 
+## MPU-9250
+For the gyroscope and accelerometer, install the [MPU-9250](https://github.com/bolderflight/invensense-imu) library.
+
 # Usage
 
 
