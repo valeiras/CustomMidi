@@ -2,10 +2,9 @@
 // Define your board, choose:
 // "ATMEGA328" if using ATmega328 - Uno, Mega, Nano...
 // "ATMEGA32U4" if using with ATmega32U4 - Micro, Pro Micro, Leonardo...
-// "TEENSY" if using a Teensy board
 // "DEBUG" if you just want to debug the code in the serial monitor
 
-#define ATMEGA32U4
+#define ATMEGA328
 
 #ifdef ATMEGA328
 #include "midi_interface328.h"
