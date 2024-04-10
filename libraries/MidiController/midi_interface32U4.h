@@ -24,17 +24,17 @@ MidiInterface32U4::MidiInterface32U4() {
 }
 
 void MidiInterface32U4::sendNoteOn(byte channel, byte pitch, byte velocity) {
-  midiEventPacket_t noteOn = { 0x09, 0x90 | channel, pitch, velocity };
+  midiEventPacket_t noteOn = { 0x09, 0x90 | channel-1, pitch, velocity };
   MidiUSB.sendMIDI(noteOn);
 }
 
 void MidiInterface32U4::sendNoteOff(byte channel, byte pitch, byte velocity) {
-  midiEventPacket_t noteOff = { 0x08, 0x80 | channel, pitch, velocity };
+  midiEventPacket_t noteOff = { 0x08, 0x80 | channel-1, pitch, velocity };
   MidiUSB.sendMIDI(noteOff);
 }
 
 void MidiInterface32U4::sendCCMessage(byte channel, byte control, byte value) {
-  midiEventPacket_t event = { 0x0B, 0xB0 | channel, control, value };
+  midiEventPacket_t event = { 0x0B, 0xB0 | channel-1, control, value };
   MidiUSB.sendMIDI(event);
 }
 
