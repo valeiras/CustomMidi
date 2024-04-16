@@ -21,13 +21,10 @@
 #include <HC_SR04.h>
 
 const byte MIDI_CH = 1;
-const byte NB_SENSORS = 2;
-const byte MIDI_NOTE[NB_SENSORS][2] = { {41, 41}, {42, 43} };
+const byte MIDI_NOTE = 40;
 
 const byte TRIGGER_PIN = 4;
-const byte ECHO_PIN1 = 2;
-const byte ECHO_PIN2 = 3;
-const byte TILT_PIN = 6;
+const byte ECHO_PIN = 2;
 
 const unsigned short MAX_DISTANCE_CM = 50;
 
@@ -35,19 +32,17 @@ const float THRESHOLD = 10;
 const byte NB_HITS_REQUIRED = 2;
 const unsigned int REFACTORY_PERIOD_MS = 50;
 
-unsigned long timeLastNote[NB_SENSORS] = { 0, 0 };
-int hitCount[NB_SENSORS] = { 0, 0 };
-bool isNoteOn[NB_SENSORS] = { false, false };
+unsigned long timeLastNote = 0;
+int hitCount = 0;
+bool isNoteOn = false;
 
 #if defined(ATMEGA328) || defined(ATMEGA32U4)
 MidiInterface* interface;
 #endif
 
-HC_SR04_BASE* slaves[] = { new HC_SR04<ECHO_PIN2>() };
-HC_SR04<ECHO_PIN1> sensors(TRIGGER_PIN, slaves, NB_SENSORS - 1);
+HC_SR04<ECHO_PIN> sensor(TRIGGER_PIN);
 
 void setup() {
-  pinMode(TILT_PIN, INPUT_PULLUP);
 #ifdef ATMEGA328
   interface = new MidiInterface328();
 #elif defined(ATMEGA32U4)
@@ -58,8 +53,7 @@ void setup() {
   Serial.begin(9600);
   delay(1000);
 #endif
-  sensors.beginAsync();
-  sensors.startAsync();
+  sensor.beginAsync();
 }
 
 void sendNote(bool isNoteOn, byte midiCh, byte midiNote, byte vel) {
@@ -77,36 +71,34 @@ void sendNote(bool isNoteOn, byte midiCh, byte midiNote, byte vel) {
   } else {
     Serial.println(": OFF!!");
   }
+  sensor.startAsync();
 #endif
 }
 
 void loop() {
-  for (int ii = 0; ii < sensors.getNumberOfSensors(); ii++) {
-    if (sensors.isFinished(ii)) {
-      float distance = sensors.getDist_cm(ii);
-      int switchValue = digitalRead(TILT_PIN);
-      if (isNoteOn[ii]) {
-        if (distance > THRESHOLD || distance < 0) hitCount[ii]++;
-        else hitCount[ii] = 0;
-      } else {
-        if (distance > 0 && distance < THRESHOLD) hitCount[ii]++;
-        else hitCount[ii] = 0;
-      }
-      if (hitCount[ii] > NB_HITS_REQUIRED && millis() - timeLastNote[ii] > REFACTORY_PERIOD_MS) {
-        isNoteOn[ii] = !isNoteOn[ii];
-        hitCount[ii] = 0;
-        timeLastNote[ii] = millis();
-        sendNote(isNoteOn[ii], MIDI_CH, MIDI_NOTE[ii][switchValue], 64);
-      }
-      sensors.startAsync(0, ii);
+  if (sensor.isFinished()) {
+    float distance = sensor.getDist_cm();
+    if (isNoteOn) {
+      if (distance > THRESHOLD || distance < 0) hitCount++;
+      else hitCount = 0;
+    } else {
+      if (distance > 0 && distance < THRESHOLD) hitCount++;
+      else hitCount = 0;
     }
+    if (hitCount > NB_HITS_REQUIRED && millis() - timeLastNote > REFACTORY_PERIOD_MS) {
+      isNoteOn = !isNoteOn;
+      hitCount = 0;
+      timeLastNote = millis();
+      sendNote(isNoteOn, MIDI_CH, MIDI_NOTE, 64);
+    }
+    sensor.startAsync();
   }
 
   // // --------- Serial plotter -------
   // Serial.print("Distance 1:");
-  // Serial.print(min(sensors.getDist_cm(0), MAX_DISTANCE_CM));
+  // Serial.print(min(sensor.getDist_cm(0), MAX_DISTANCE_CM));
   // Serial.print("Distance 2:");
-  // Serial.print(min(sensors.getDist_cm(1), MAX_DISTANCE_CM));
+  // Serial.print(min(sensor.getDist_cm(1), MAX_DISTANCE_CM));
   // Serial.print(", Threshold:");
   // Serial.print(THRESHOLD);
   // Serial.print(", zero:");
